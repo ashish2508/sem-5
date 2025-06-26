@@ -1,0 +1,73 @@
+#!/bin/bash
+
+echo "Round Robin Scheduling"
+echo "Enter number of processes:"
+read n
+
+echo "Enter Arrival Time for each process:"
+for ((i=0; i<n; i++)); do
+    read at[$i]
+done
+
+echo "Enter Burst Time for each process:"
+for ((i=0; i<n; i++)); do
+    read bt[$i]
+    remaining[$i]=${bt[$i]}
+done
+
+echo "Enter time quantum:"
+read tq
+
+time=0
+complete=0
+declare -a queue
+
+
+while [ $complete -ne $n ]; do
+    # Add arrived processes to queue
+    for ((i=0; i<n; i++)); do
+        if [ ${at[$i]} -le $time ] && [ ${remaining[$i]} -gt 0 ]; then
+            if [[ ! " ${queue[*]} " =~ " $i " ]]; then
+                queue+=($i)
+            fi
+        fi
+    done
+    
+    if [ ${#queue[@]} -eq 0 ]; then
+
+        time=$((time + 1))
+        continue
+    fi
+    
+    curr=${queue[0]}
+
+    queue=("${queue[@]:1}")
+    
+    if [ ${remaining[$curr]} -le $tq ]; then
+        time=$((time + remaining[$curr]))
+        ct[$curr]=$time
+        remaining[$curr]=0
+        complete=$((complete + 1))
+    else
+        time=$((time + tq))
+        remaining[$curr]=$((remaining[$curr] - tq))
+        # Add back to queue if not completed
+        for ((i=0; i<n; i++)); do
+            if [ ${at[$i]} -le $time ] && [ ${remaining[$i]} -gt 0 ] && [ $i -ne $curr ]; then
+                if [[ ! " ${queue[*]} " =~ " $i " ]]; then
+                    queue+=($i)
+
+                fi
+            fi
+        done
+        queue+=($curr)
+    fi
+done
+
+# Display results
+echo "Process    AT    BT    CT    TAT    WT"
+for ((i=0; i<n; i++)); do
+    tat[$i]=$((ct[$i] - at[$i]))
+    wt[$i]=$((tat[$i] - bt[$i]))
+    echo "P$((i+1))       ${at[$i]}     ${bt[$i]}     ${ct[$i]}     ${tat[$i]}     ${wt[$i]}"
+done

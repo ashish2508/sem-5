@@ -1,0 +1,57 @@
+#!/bin/bash
+
+echo "HRRN Scheduling"
+echo "Enter number of processes:"
+read n
+
+echo "Enter Arrival Time for each process:"
+for ((i=0; i<n; i++)); do
+    read at[$i]
+done
+
+echo "Enter Burst Time for each process:"
+for ((i=0; i<n; i++)); do
+    read bt[$i]
+    remaining[$i]=${bt[$i]}
+    completed[$i]=0
+done
+
+
+time=0
+complete=0
+
+while [ $complete -ne $n ]; do
+    max_ratio=-1
+
+    next=-1
+    
+    for ((i=0; i<n; i++)); do
+        if [ ${at[$i]} -le $time ] && [ ${completed[$i]} -eq 0 ]; then
+
+            wait=$((time - at[$i]))
+            ratio=$(echo "scale=2; (1 + $wait/${bt[$i]})" | bc)
+            if (( $(echo "$ratio > $max_ratio" | bc -l) )); then
+                max_ratio=$ratio
+                next=$i
+            fi
+        fi
+    done
+    
+    if [ $next -eq -1 ]; then
+        time=$((time + 1))
+        continue
+    fi
+    
+    time=$((time + bt[$next]))
+    ct[$next]=$time
+    completed[$next]=1
+    complete=$((complete + 1))
+done
+
+# Display results
+echo "Process    AT    BT    CT    TAT    WT"
+for ((i=0; i<n; i++)); do
+    tat[$i]=$((ct[$i] - at[$i]))
+    wt[$i]=$((tat[$i] - bt[$i]))
+    echo "P$((i+1))       ${at[$i]}     ${bt[$i]}     ${ct[$i]}     ${tat[$i]}     ${wt[$i]}"
+done

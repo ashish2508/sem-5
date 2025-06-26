@@ -1,0 +1,63 @@
+#!/bin/bash
+
+echo "SRTF Scheduling"
+echo "Enter number of processes:"
+read n
+
+
+echo "Enter Arrival Time for each process:"
+for ((i=0; i<n; i++)); do
+    read at[$i]
+done
+
+echo "Enter Burst Time for each process:"
+for ((i=0; i<n; i++)); do
+    read bt[$i]
+    remaining[$i]=${bt[$i]}
+    completed[$i]=0
+done
+
+
+time=0
+complete=0
+
+while [ $complete -ne $n ]; do
+    min=9999
+    short=-1
+    
+    for ((i=0; i<n; i++)); do
+
+        if [ ${at[$i]} -le $time ] && [ ${completed[$i]} -eq 0 ] && [ ${remaining[$i]} -lt $min ] && [ ${remaining[$i]} -gt 0 ]; then
+
+            min=${remaining[$i]}
+            short=$i
+        fi
+    done
+    
+    if [ $short -eq -1 ]; then
+
+        time=$((time + 1))
+        continue
+    fi
+    
+    remaining[$short]=$((remaining[$short] - 1))
+
+    time=$((time + 1))
+    
+    if [ ${remaining[$short]} -eq 0 ]; then
+
+        completed[$short]=1
+        complete=$((complete + 1))
+        ct[$short]=$time
+    fi
+
+done
+
+# Display results
+
+echo "Process   AT   BT   CT   TAT   WT"
+for ((i=0; i<n; i++)); do
+    tat[$i]=$((ct[$i] - at[$i]))
+    wt[$i]=$((tat[$i] - bt[$i]))
+    echo "P$((i+1))       ${at[$i]}     ${bt[$i]}     ${ct[$i]}     ${tat[$i]}     ${wt[$i]}"
+done

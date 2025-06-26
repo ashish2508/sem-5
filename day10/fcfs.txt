@@ -1,0 +1,35 @@
+#!/bin/bash
+
+read -p "Enter number of processes: " n
+
+AT=()
+BT=()
+CT=()
+TAT=()
+WT=()
+
+for ((i=0; i<n; i++)); do
+    read -p "Enter Arrival Time for Process $i: " at
+    read -p "Enter Burst Time for Process $i: " bt
+    AT[i]=$at
+    BT[i]=$bt
+done
+
+CT[0]=${BT[0]}
+TAT[0]=$((CT[0] - AT[0]))
+WT[0]=$((TAT[0] - BT[0]))
+
+
+for ((i=1; i<n; i++)); do
+    CT[i]=$((CT[i-1] + BT[i]))
+
+    TAT[i]=$((CT[i] - AT[i]))
+    WT[i]=$((TAT[i] - BT[i]))
+
+done
+
+echo "Process | AT | BT | CT | TAT | WT"
+
+for ((i=0; i<n; i++)); do
+    echo "$i        ${AT[i]}    ${BT[i]}    ${CT[i]}    ${TAT[i]}    ${WT[i]}"
+done

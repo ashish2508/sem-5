@@ -1,0 +1,6 @@
+echo "Coin Toss Results:"
+(( RANDOM % 2 == 0 )) && echo "Heads" || echo "Tails"
+(( RANDOM % 2 == 0 )) && echo "Heads" || echo "Tails"
+(( RANDOM % 2 == 0 )) && echo "Heads" || echo "Tails"
+(( RANDOM % 2 == 0 )) && echo "Heads" || echo "Tails"
+(( RANDOM % 2 == 0 )) && echo "Heads" || echo "Tails"
